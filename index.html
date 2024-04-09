@@ -7,7 +7,15 @@
     <body>
     <div class="app">
         <h1>Simple Quiz</h1>
-        <div class="quiz">
+        <div id="difficulty-selection">
+            <h2>Select difficulty:</h2>
+            <div id="difficulty-btn">
+                <button class="diff_btn">Easy</button>
+                <button class="diff_btn">Medium</button>
+                <button class="diff_btn">Hard</button>
+            </div>
+        </div>
+        <div class="quiz" id="quiz" style="display: none;">
             <h2 id="question">Question here</h2>
             <div id="answer-buttons">
                 <button class="btn">Answer 1</button>
@@ -16,7 +24,6 @@
                 <button class="btn">Answer 4</button>
             </div>
             <button id="next-btn">Next</button>
-            </div>
         </div>
     </div>
     <script src="script.js"></script>

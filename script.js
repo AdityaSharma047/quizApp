@@ -1,54 +1,38 @@
-const questions = [
-    {
-        question: "Which is the largest land animal in the world ?",
-        answers: [
-            { text: "Elephant", correct: true },
-            { text: "Lion", correct: false },
-            { text: "Tiger", correct: false },
-            { text: "Giraffe", correct: false }
-        ]
-    },
-    {
-        question: "Which is the smallest country in the world ?",
-        answers: [
-            { text: "Vatican City", correct: true },
-            { text: "Monaco", correct: false },
-            { text: "San Marino", correct: false },
-            { text: "Venezuela", correct: false }
-        ]
-    },
-    {
-        question: "Which is the largest ocean in the world ?",
-        answers: [
-            { text: "Indian Ocean", correct: false },
-            { text: "Atlantic Ocean", correct: false },
-            { text: "Pacific Ocean", correct: true },
-            { text: "Arctic Ocean", correct: false }
-        ]
-    },
-    {
-        question: "Which is the largest continent in the world ?",
-        answers: [
-            { text: "Asia", correct: true },
-            { text: "Africa", correct: false },
-            { text: "Europe", correct: false },
-            { text: "Australia", correct: false }
-        ]
-    }
-];
-
 const questionElement = document.getElementById("question");
 const answerButtons = document.getElementById("answer-buttons");
 const nextButton = document.getElementById("next-btn");
+const difficultyButtons = document.querySelectorAll(".diff_btn");
+const difficultySelection = document.getElementById("difficulty-selection");
+const quiz = document.getElementById("quiz");
 
 let currentQuestionIndex = 0;
 let score = 0;
-
-function startQuiz() {
+let questions = [];
+document.addEventListener('contextmenu', event => event.preventDefault());
+function startQuiz(difficulty) {
     currentQuestionIndex = 0;
     score = 0;
     nextButton.innerHTML = "Next";
-    showQuestion();
+    const url = `https://opentdb.com/api.php?amount=10&category=9&difficulty=${difficulty}&type=multiple`;
+    fetchQuestions(url);
+}
+
+function fetchQuestions(url) {
+    fetch(url)
+        .then(response => response.json())
+        .then(data => {
+            questions = data.results.map(result => {
+                return {
+                    question: result.question,
+                    correct_answer: result.correct_answer,
+                    incorrect_answers: result.incorrect_answers
+                };
+            });
+            showQuestion();
+            difficultySelection.style.display = "none";
+            quiz.style.display = "block";
+        })
+        .catch(error => console.error("Error fetching questions:", error));
 }
 
 function showQuestion() {
@@ -57,16 +41,29 @@ function showQuestion() {
     let questionNo = currentQuestionIndex + 1;
     questionElement.innerHTML = questionNo + ". " + currentQuestion.question;
 
-    currentQuestion.answers.forEach(answer => {
+    // Combine correct and incorrect answers
+    let answers = currentQuestion.incorrect_answers.concat(currentQuestion.correct_answer);
+    // Shuffle the answers
+    answers = shuffleArray(answers);
+
+    answers.forEach(answer => {
         const button = document.createElement("button");
-        button.innerHTML = answer.text;
+        button.innerHTML = answer;
         button.classList.add("btn");
         answerButtons.appendChild(button);
-        if (answer.correct) {
-            button.dataset.correct = answer.correct;
+        if (answer === currentQuestion.correct_answer) {
+            button.dataset.correct = true;
         }
         button.addEventListener("click", selectAnswer);
     });
+}
+
+function shuffleArray(array) {
+    for (let i = array.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [array[i], array[j]] = [array[j], array[i]];
+    }
+    return array;
 }
 
 function resetState() {
@@ -114,8 +111,22 @@ nextButton.addEventListener("click", () => {
     if (currentQuestionIndex < questions.length) {
         handleNextButton();
     } else {
-        startQuiz();
+        restartQuiz();
     }
 });
 
-startQuiz();
+function restartQuiz() {
+    currentQuestionIndex = 0;
+    score = 0;
+    questions = [];
+    resetState();
+    difficultySelection.style.display = "block";
+    quiz.style.display = "none";
+}
+
+difficultyButtons.forEach(button => {
+    button.addEventListener("click", () => {
+        const difficulty = button.textContent.toLowerCase();
+        startQuiz(difficulty);
+    });
+});

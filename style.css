@@ -68,3 +68,18 @@ body{
 .incorrect{
     background: #ff9393;
 }
+.diff_btn{
+    background: #fff;
+    color: #222;
+    font-weight: 500;
+    width: 20%;
+    border: 1px solid #222;
+    padding: 10px;
+    margin: 10px 10px;
+    text-align: center;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all 0.3s;
+    justify-content: space-around;
+    margin-left: 40px;
+}
